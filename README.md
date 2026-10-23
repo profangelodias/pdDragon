@@ -336,12 +336,12 @@ public class Main {
 O repositório tem duas branches com propósitos diferentes:
 
 * **`main`** mantém o ponto de partida: o jogo monolítico e seu README original.
-* **`refatorado`** é a branch de trabalho da aula. Neste primeiro momento, o código Java continua igual ao de `main`; as mudanças serão feitas em etapas, com um commit por etapa, para que a turma possa comparar cada evolução.
+* **`refatorado`** é a branch de trabalho da aula. Cada passo será registrado em um commit próprio para permitir a demonstração gradual das mudanças.
 
 ### Passo a passo da aula
 
 0. **Executar e entender o baseline.** Rode `Main.main()` e identifique as responsabilidades que estão concentradas em `Main`: entrada e saída, criação do herói e dos monstros, regras de combate, efeitos, recompensas e progressão. Anote o comportamento antes de alterar o código.
-1. **Aplicar GRASP e separar responsabilidades.** Introduza `Hero`, `Monster` e `Weapon` para reunir dados e regras relacionadas. Extraia a coordenação da masmorra para `GameEngine`; deixe `Main` como ponto de entrada. O objetivo é aumentar coesão e reduzir o acoplamento sem mudar as regras do jogo.
+1. **Aplicar GRASP e separar responsabilidades.** `Main` coordena o fluxo do jogo; `ui/GameUI` concentra entrada e saída do terminal; `model/Hero` mantém os dados e regras do herói; `model/Monster` mantém os dados e regras do monstro. Preserve as condicionais de criação, o `switch` de ações e as flags temporárias nesta primeira etapa: Builder, Factory, Strategy e State serão commits posteriores.
 2. **Organizar a criação de objetos.** Use `HeroBuilder` para montar heróis com atributos de classe e `MonsterFactory` para criar o inimigo correspondente ao andar. Isso concentra as decisões de criação em vez de espalhá-las por condicionais.
 3. **Separar as ações de combate com Strategy.** Modele ataque físico, ataque mágico e cura como estratégias intercambiáveis. Cada ação conserva suas regras atuais de dano, custo de mana e aleatoriedade; a escolha do jogador deixa de depender do `switch` central.
 4. **Modelar efeitos temporários com State.** Substitua as flags e condicionais de veneno e atordoamento por estados com comportamento próprio. Preserve a duração do veneno, a perda de turno do atordoamento e o momento em que cada efeito é aplicado.
