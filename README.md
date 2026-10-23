@@ -333,53 +333,54 @@ public class Main {
 
 ## 🛠️ Cronograma de Refatoração
 
-Cada módulo de aula representará uma evolução direta no código do projeto `pdDragon`:
+O repositório tem duas branches com propósitos diferentes:
 
-1.  **Módulo I (Princípios GRASP):** Remover o código de dentro da classe `Main`, isolando as entidades `Hero`, `Monster` e criando uma classe `GameEngine` para gerenciar o loop da masmorra.
-2.  **Módulo II (Padrões Criacionais - GoF):** Substituir a criação de personagens por um robusto **Builder** (`HeroBuilder`) e o sistema de criação de monstros do andar por um **Factory Method** (`MonsterFactory`).
-3.  **Módulo III (Padrões Estruturais - GoF):** Implementar o padrão **Decorator** para que as armas do jogo possam ser decoradas cumulativamente com bônus de ataque (ex: uma arma que recebe simultaneamente o modificador de Fogo e de Gelo).
-4.  **Módulo IV (Padrões Comportamentais - GoF):** Substituir as flags e condicionais de envenenamento e atordoamento por um sistema modular usando o padrão **State**, e as escolhas de ataque por **Strategy**.
+* **`main`** mantém o ponto de partida: o jogo monolítico e seu README original.
+* **`refatorado`** é a branch de trabalho da aula. Neste primeiro momento, o código Java continua igual ao de `main`; as mudanças serão feitas em etapas, com um commit por etapa, para que a turma possa comparar cada evolução.
+
+### Passo a passo da aula
+
+0. **Executar e entender o baseline.** Rode `Main.main()` e identifique as responsabilidades que estão concentradas em `Main`: entrada e saída, criação do herói e dos monstros, regras de combate, efeitos, recompensas e progressão. Anote o comportamento antes de alterar o código.
+1. **Aplicar GRASP e separar responsabilidades.** Introduza `Hero`, `Monster` e `Weapon` para reunir dados e regras relacionadas. Extraia a coordenação da masmorra para `GameEngine`; deixe `Main` como ponto de entrada. O objetivo é aumentar coesão e reduzir o acoplamento sem mudar as regras do jogo.
+2. **Organizar a criação de objetos.** Use `HeroBuilder` para montar heróis com atributos de classe e `MonsterFactory` para criar o inimigo correspondente ao andar. Isso concentra as decisões de criação em vez de espalhá-las por condicionais.
+3. **Separar as ações de combate com Strategy.** Modele ataque físico, ataque mágico e cura como estratégias intercambiáveis. Cada ação conserva suas regras atuais de dano, custo de mana e aleatoriedade; a escolha do jogador deixa de depender do `switch` central.
+4. **Modelar efeitos temporários com State.** Substitua as flags e condicionais de veneno e atordoamento por estados com comportamento próprio. Preserve a duração do veneno, a perda de turno do atordoamento e o momento em que cada efeito é aplicado.
+5. **Evoluir equipamentos com Decorator.** Use uma abstração de arma e decoradores para acrescentar bônus sem alterar a arma original. A possibilidade de acumular encantamentos é uma mudança de funcionalidade em relação ao baseline, em que cada recompensa substitui a arma; trate-a como uma decisão explícita e valide-a separadamente da refatoração.
+6. **Extensão opcional: Observer.** Se houver tempo e fizer parte do escopo da turma, adicione eventos de combate e conquistas como uma funcionalidade nova. O baseline não tem sistema de troféus.
+
+Ao final de cada etapa, execute o jogo e compare com o comportamento anotado no passo 0. Em refatorações, preserve as regras; quando uma etapa também adicionar funcionalidade, registre essa mudança como intencional. Faça um commit após cada etapa concluída para que seja fácil demonstrar ou revisar a evolução.
 
 ---
 
-## 🎮 Game Design Document (GDD) Simplificado: DesignPartner & Dragons
+## 🎮 Referência do jogo: DesignPartner & Dragons
 
-Para tornar este projeto ainda mais imersivo e empolgante, transformamos nossa masmorra de programação em um jogo estruturado sob regras e interações clássicas de RPG. Abaixo, detalhamos o design do jogo para que você entenda como suas ações no terminal se traduzem em desafios e estratégias.
+Esta seção descreve o jogo que existe no código de partida, não funcionalidades futuras. Ela serve como referência para conferir que as etapas de refatoração preservam as regras existentes.
 
 ### 🕹️ Sinopse e Objetivo do Jogo
-Em **DesignPartner & Dragons**, você encarna um programador lendário que adentra a **Masmorra Arquitetural**, um labirinto esquecido de servidores onde códigos antigos ganharam vida como monstros de pesadelo. Sua missão é purificar os 3 andares da masmorra, derrotando bugs encarnados como monstros, coletando artefatos e acumulando troféus, até derrotar o temido **Dragão Arquitetural (Boss)** no topo.
+Em **DesignPartner & Dragons**, você encarna um programador lendário que adentra a **Masmorra Arquitetural**, um labirinto esquecido de servidores onde códigos antigos ganharam vida como monstros de pesadelo. Sua missão é purificar os 3 andares da masmorra, derrotar os monstros e conquistar a vitória contra o temido **Dragão Arquitetural (Boss)** no topo.
 
 ### ⚔️ Mecânicas de Jogo (O que o jogador PODE fazer)
 As mecânicas são as regras fundamentais e ações diretas que o sistema permite:
-1. **Escolha de Classe de Personagem (Builder):** Cada classe define atributos iniciais e equipamentos característicos:
-    * **Guerreiro:** Alta resistência física (100 HP), pouca mana (20 MP). Inicia com *Espada de Ferro*.
-    * **Mago:** Alta energia mágica (80 MP) mas frágil (60 HP). Inicia com *Cajado de Aprendiz*.
-    * **Paladino:** Equilibrado (85 HP, 40 MP). Inicia com *Martelo de Guerra*.
-2. **Escolhas de Turno em Combate (Strategy):** Em seu turno, o jogador escolhe entre três posturas estratégicas de batalha:
-    * **Ataque Físico:** Causa dano físico bruto baseado na força física e bônus da arma atual.
-    * **Magia Arcana (Custo: 10 MP):** Causa alto dano mágico contornando a armadura inimiga, ideal para quem tem alta inteligência.
-    * **Postura Defensiva (+15 HP):** Permite recuperar o fôlego e pontos de vida no meio da batalha, sem consumir mana.
-3. **Efeitos de Estado Negativos (State):** Condições físicas aplicadas por monstros que alteram as regras do turno:
+1. **Escolha de classe:** Guerreiro (100 HP, 20 MP), Mago (60 HP, 80 MP) ou Arqueiro (80 HP, 40 MP), cada um com arma e dano base próprios.
+2. **Ações de combate:** ataque físico, ataque mágico (custa 10 MP) ou cura (custa 5 MP). O ataque físico soma o dano base do herói, o bônus da arma e um valor aleatório; magia também causa dano aleatório.
+3. **Efeitos de estado:** condições aplicadas pelos monstros que alteram os turnos:
     * **Envenenado (Poisoned):** O herói perde 5 HP no início de cada turno devido a saliva ácida de monstros.
     * **Atordoado (Stunned):** O herói fica atordoado e pula completamente o seu turno de decisão técnico (restaurando-se no turno seguinte).
-4. **Encantamentos Dinâmicos (Decorator):** Ao vencer monstros de andares intermediários, o herói encontra bigornas ancestrais que permitem imbuir runas cumulativas em sua arma:
-    * **Runas de Fogo (+6 de dano de chamas)**
-    * **Runas Gélidas (+4 de dano de gelo)**
-5. **Conquistas Reativas (Observer):** Um sistema automatizado que monitora em tempo real as ações de combate e desbloqueia troféus virtuais ao atingir marcos (ex: \"Primeiro Sangue!\", \"Matador de Dragões!\", \"Sobrevivente nato\").
+4. **Progressão:** Goblin, Orc e Dragão aparecem nos três andares. Após os dois primeiros combates, o jogador pode aceitar ou recusar a arma encontrada; a segunda arma também aumenta a mana máxima.
 
 ### 🎲 Dinâmicas de Jogo (Como o jogador se COMPORTA e reage)
-As dinâmicas surgem da interação das mecânicas com o comportamento e as escolhas do jogador:
+
+As dinâmicas que já existem surgem da interação das mecânicas com as escolhas do jogador:
 * **Gerenciamento de Riscos (HP vs. MP):** Jogadores precisam decidir o momento exato de gastar mana para finalizar uma luta rápida com Magia contra o risco de ficar sem mana para se curar no momento crítico.
-* **Sinergia de Builds (Customização):** Com o padrão Decorator, os jogadores podem acumular múltiplos encantamentos na mesma arma. Um guerreiro pode terminar o jogo empunhando uma *\"Espada de Ferro das Chamas Gélidas\"*, combinando bônus de dano de múltiplos andares.
 * **Adaptabilidade Tática (Reagir aos Estados):** Se o herói for envenenado, a dinâmica muda de \"jogar com calma\" para \"finalizar o oponente rápido\" antes que o veneno drene o restante do HP. Se for atordoado, o jogador é forçado a assumir uma postura passiva e repensar a estratégia do próximo turno.
 
 ### 📜 Como Jogar
 1. **Configuração e Execução:** Execute a classe `Main.java` no console do IntelliJ IDEA.
-2. **Identificação:** Digite o nome do seu Herói e selecione uma classe de combate inicial (Guerreiro, Mago ou Paladino).
+2. **Identificação:** Digite o nome do seu Herói e selecione uma classe de combate inicial (Guerreiro, Mago ou Arqueiro).
 3. **Exploração da Masmorra:** O jogo avança automaticamente andar por andar (do 1º ao 3º). Em cada andar, um monstro específico (Goblin, Orc e Dragão) desafiará você.
 4. **Combate Baseado em Turnos:** Escolha a ação digitando o número correspondente no console (1, 2 ou 3) e observe os resultados na tela.
-5. **Aprimoramento de Armas:** No final dos andares 1 e 2, escolha se deseja e qual encantamento aplicar à sua arma na bigorna.
-6. **Vitória ou Derrota:** O jogo termina quando você purificar o 3º andar derrotando o Dragão (Vitória) ou quando seu HP chegar a 0 (Fim de Jogo). Seus troféus serão exibidos no final!
+5. **Recompensas:** No final dos andares 1 e 2, escolha se deseja equipar a arma encontrada.
+6. **Vitória ou Derrota:** O jogo termina quando você derrotar o Dragão (Vitória) ou quando seu HP chegar a 0 (Fim de Jogo).
 
 ---
 *⚔️ Prepare suas interfaces, configure suas dependências e bom código! A masmorra de "Design Partner & Dragons" aguarda suas habilidades arquiteturais.*
