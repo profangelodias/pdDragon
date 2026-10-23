@@ -333,12 +333,12 @@ public class Main {
 
 ## 🛠️ Cronograma de Refatoração
 
-Cada módulo de aula representará uma evolução direta no código do projeto `pdDragon`:
+Cada parte de aula representará uma evolução direta no código do projeto `pdDragon`:
 
-1.  **Módulo I (Princípios GRASP):** Remover o código de dentro da classe `Main`, isolando as entidades `Hero`, `Monster` e criando uma classe `GameEngine` para gerenciar o loop da masmorra.
-2.  **Módulo II (Padrões Criacionais - GoF):** Substituir a criação de personagens por um robusto **Builder** (`HeroBuilder`) e o sistema de criação de monstros do andar por um **Factory Method** (`MonsterFactory`).
-3.  **Módulo III (Padrões Estruturais - GoF):** Implementar o padrão **Decorator** para que as armas do jogo possam ser decoradas cumulativamente com bônus de ataque (ex: uma arma que recebe simultaneamente o modificador de Fogo e de Gelo).
-4.  **Módulo IV (Padrões Comportamentais - GoF):** Substituir as flags e condicionais de envenenamento e atordoamento por um sistema modular usando o padrão **State**, e as escolhas de ataque por **Strategy**.
+1.  **Parte I (Princípios GRASP):** Remover o código de dentro da classe `Main`, isolando as entidades `Hero`, `Monster` e criando uma classe `GameEngine` para gerenciar o loop da masmorra.
+2.  **Parte II (Padrões Criacionais - GoF):** Substituir a criação de personagens por um robusto **Builder** (`HeroBuilder`) e o sistema de criação de monstros do andar por um **Factory Method** (`MonsterFactory`).
+3.  **Parte III (Padrões Estruturais - GoF):** Implementar o padrão **Decorator** para que as armas do jogo possam ser decoradas cumulativamente com bônus de ataque (ex: uma arma que recebe simultaneamente o modificador de Fogo e de Gelo).
+4.  **Parte IV (Padrões Comportamentais - GoF):** Substituir as flags e condicionais de envenenamento e atordoamento por um sistema modular usando o padrão **State**, e as escolhas de ataque por **Strategy**.
 
 ---
 
