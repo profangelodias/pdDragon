@@ -1,265 +1,328 @@
 package tech.angelofdiasg.pddragons;
-import java.util.Scanner;
+
 import java.util.Random;
+import java.util.Scanner;
 
 /**
- * ⚠️ ATENÇÃO: Este é o Código de Partida Monolítico ("Messy Code").
- * Toda a lógica, dados, estados, combate e exibição de console estão misturados
- * dentro deste único arquivo usando estruturas estáticas, condicionais aninhadas e flags rígidas.
- *
- * Seu objetivo no Bootcamp é fragmentar e refatorar este arquivo aplicando GRASP e GoF.
+ * Versão monolítica do jogo, mantida para comparação didática com Main.
+ * As regras, atributos e opções são equivalentes; aqui permanecem concentrados
+ * no método main para evidenciar o que os padrões extraem e organizam.
  */
 public class Main {
     public static void main(String[] args) {
+        // [REFATORAÇÃO INCREMENTAL - Controller]
+        // Scanner e Random continuam locais ao fluxo principal do monólito.
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
 
-        System.out.println("=========================================");
-        System.out.println("    BEM-VINDO A DESIGN PARTNER & DRAGONS!    ");
-        System.out.println("=========================================");
+        // [ITEM 2/8 - GoF Facade: apresentação extraída para ui/GameUI.java.
+        // Menus e leitura do Scanner continuam no fluxo de Main.]
+        System.out.println("====================================================================");
+        System.out.println("  BEM-VINDO A DESIGN PARTNER & DRAGONS");
+        System.out.println("  A masmorra da arquitetura espera por você na era da IA.");
+        System.out.println("  Aprenda Padrões de Projeto refatorando e combatendo bugs!");
+        System.out.println("  Tente limpar as 3 masmorras de pé.");
+        System.out.println("====================================================================");
 
-        // --- CRIAÇÃO MACARRÔNICA DO PERSONAGEM (DADOS DESACOPLADOS) ---
+        // [ITEM 3/8 - GoF Builder: este bloco de escolha e atribuição de dados
+        // foi extraído para builder/HeroBuilder.java. A versão refatorada chama
+        // setName(...), setClass(...) e build() em Main.java.]
         System.out.print("Digite o nome do seu Herói: ");
-        String heroiNome = scanner.nextLine();
+        String heroName = scanner.nextLine();
 
-        System.out.println("Escolha sua classe: 1-Guerreiro, 2-Mago, 3-Arqueiro");
-        System.out.print("Escolha: ");
-        int classeOpcao = scanner.nextInt();
+        System.out.println("\nEscolha sua Classe:");
+        System.out.println("1. Guerreiro (Alto HP, Espada Balanceada)");
+        System.out.println("2. Mago (Alto MP, Feitiço Poderoso)");
+        System.out.println("3. Paladino (Híbrido de cura e resistência)");
+        System.out.println("4. Arqueiro (Ataque equilibrado à distância)");
+        System.out.print("Opção: ");
+        int classOption = scanner.nextInt();
 
-        String heroiClasse = "Guerreiro";
-        int heroiHP = 100;
-        int heroiMaxHP = 100;
-        int heroiMP = 20;
-        int heroiMaxMP = 20;
-        int heroiDanoBase = 10;
-        String armaNome = "Punhos Nus";
-        int armaDanoBonus = 0;
+        String heroClass = "Aventureiro";
+        int strength = 10;
+        int intelligence = 10;
+        int maxHp = 80;
+        int maxMana = 40;
+        String weaponName = "Adaga Enferrujada";
+        int weaponDamage = 6;
 
-        // Atribuição de atributos de forma chumbada (Telescoping Constructor fail)
-        if (classeOpcao == 2) {
-            heroiClasse = "Mago";
-            heroiHP = 60;
-            heroiMaxHP = 60;
-            heroiMP = 80;
-            heroiMaxMP = 80;
-            heroiDanoBase = 5;
-            armaNome = "Cajado de Aprendiz";
-            armaDanoBonus = 3;
-        } else if (classeOpcao == 3) {
-            heroiClasse = "Arqueiro";
-            heroiHP = 80;
-            heroiMaxHP = 80;
-            heroiMP = 40;
-            heroiMaxMP = 40;
-            heroiDanoBase = 8;
-            armaNome = "Arco Curto";
-            armaDanoBonus = 4;
-        } else {
-            // Guerreiro padrão
-            armaNome = "Espada Enferrujada";
-            armaDanoBonus = 5;
+        if (classOption == 1) {
+            heroClass = "Guerreiro";
+            strength = 14;
+            intelligence = 6;
+            maxHp = 100;
+            maxMana = 20;
+            weaponName = "Espada de Ferro";
+            weaponDamage = 10;
+        } else if (classOption == 2) {
+            heroClass = "Mago";
+            strength = 5;
+            intelligence = 15;
+            maxHp = 60;
+            maxMana = 80;
+            weaponName = "Cajado de Aprendiz";
+            weaponDamage = 5;
+        } else if (classOption == 3) {
+            heroClass = "Paladino";
+            strength = 11;
+            intelligence = 9;
+            maxHp = 85;
+            maxMana = 40;
+            weaponName = "Martelo de Guerra";
+            weaponDamage = 8;
+        } else if (classOption == 4) {
+            heroClass = "Arqueiro";
+            strength = 12;
+            intelligence = 10;
+            maxHp = 80;
+            maxMana = 40;
+            weaponName = "Arco Longo";
+            weaponDamage = 8;
         }
 
-        System.out.println("\nHerói " + heroiNome + " o " + heroiClasse + " criado com sucesso!");
-        System.out.println("Armado com " + armaNome + " (+ " + armaDanoBonus + " Dano)");
-        System.out.println("Atributos: HP=" + heroiHP + "/" + heroiMaxHP + " | MP=" + heroiMP + "/" + heroiMaxMP + "\n");
+        int hp = maxHp;
+        int mana = maxMana;
+        int level = 1;
+        int experience = 0;
+        String currentState = "Saudável";
+        String currentStrategy = "Ataque Físico";
 
-        // --- SISTEMA DE FLORES (ANDAR DA MASMORRA) ---
-        int andarAtual = 1;
-        int totalAndares = 3;
-        boolean heroiVivo = true;
+        // [ITEM 1/8 - GRASP Information Expert & Controller]
+        // No monólito, os dados e operações do herói estão nestas variáveis e
+        // condicionais. Foram movidos para model/Hero.java; Main continua como
+        // Controller, orquestrando os turnos sem manter os atributos do herói.
+        System.out.println("\nHerói " + heroName + " (Nível " + level + " " + heroClass + ") criado com sucesso!");
+        System.out.println("Vida: " + hp + " / " + maxHp + " | Mana: " + mana + " / " + maxMana);
+        System.out.println("Estado Físico: " + currentState);
+        System.out.println("Arma Atual: " + weaponName + " (Dano: +" + weaponDamage + ")");
+        System.out.println("Estratégia Escolhida: " + currentStrategy);
 
-        // Loop de andares da masmorra (Controle Procedural)
-        while (andarAtual <= totalAndares && heroiVivo) {
-            System.out.println("-----------------------------------------");
-            System.out.println("👉 ENTRANDO NO ANDAR " + andarAtual + " DA MASMORRA!");
-            System.out.println("-----------------------------------------");
-
-            // Criação rígida de monstros (Spawner acoplado usando condicionais de Strings)
-            String monstroNome = "";
-            int monstroHP = 0;
-            int monstroDanoBase = 0;
-            String monstroHabilidade = "";
-
-            if (andarAtual == 1) {
-                monstroNome = "Goblin Traquinas";
-                monstroHP = 35;
-                monstroDanoBase = 8;
-                monstroHabilidade = "Mordida Rápida";
-            } else if (andarAtual == 2) {
-                monstroNome = "Orc Saqueador";
-                monstroHP = 65;
-                monstroDanoBase = 12;
-                monstroHabilidade = "Clava de Ferro";
-            } else if (andarAtual == 3) {
-                monstroNome = "Architectural Dragon (BOSS)";
-                monstroHP = 150;
-                monstroDanoBase = 18;
-                monstroHabilidade = "Sopro de Código Legado (Fogo)";
+        // [ITEM 1/8 - GRASP Controller: o laço de andares e de combate é fluxo
+        // do jogo e permanece em Main.java também após a refatoração.]
+        int currentFloor = 1;
+        while (hp > 0 && currentFloor <= 3) {
+            // [ITEM 4/8 - GoF Factory Method: esta seleção condicional foi
+            // extraída para factory/DungeonSpawner.java. Os dados e ações dos
+            // produtos foram extraídos para model/Monster.java, Goblin.java,
+            // Orc.java e ArchitecturalDragon.java.]
+            String monsterName;
+            int monsterHp;
+            int monsterAttackPower;
+            if (currentFloor == 1) {
+                monsterName = "Goblin Saqueador";
+                monsterHp = 35;
+                monsterAttackPower = 8;
+            } else if (currentFloor == 2) {
+                monsterName = "Orc Guerreiro";
+                monsterHp = 60;
+                monsterAttackPower = 14;
+            } else {
+                monsterName = "Dragão Arquitetural";
+                monsterHp = 120;
+                monsterAttackPower = 22;
             }
 
-            System.out.println("Um terrível " + monstroNome + " bloqueia seu caminho!");
+            System.out.println("\n====================================================================");
+            System.out.println("  NOVO ANDAR DA MASMORRA - " + currentFloor + "F");
+            System.out.println("  Um terrível " + monsterName + " bloqueia o seu caminho!");
+            System.out.println("  Derrote-o para avançar de nível e coletar relíquias!");
+            System.out.println("====================================================================");
 
-            // Flags de estado voláteis para efeitos temporários (Falta do padrão State)
-            boolean heroiEnvenenado = false;
-            boolean heroiAtordoado = false;
-            int turnosEnvenenamento = 0;
+            // [ITEM 6/8 - GoF State: esta variável e seus efeitos foram extraídos
+            // para state/CharacterState.java, HealthyState.java, PoisonedState.java
+            // e StunnedState.java. Os monstros aplicam estados nas classes model/.
 
-            // --- LOOP DE BATALHA ACOPLADO ---
-            while (heroiHP > 0 && monstroHP > 0) {
-                System.out.println("\n--- STATUS COMBATE ---");
-                System.out.println(heroiNome + " [HP: " + heroiHP + "/" + heroiMaxHP + " | MP: " + heroiMP + "/" + heroiMaxMP + "]");
-                System.out.println(monstroNome + " [HP: " + monstroHP + "]");
-                if (heroiEnvenenado) {
-                    System.out.println("⚠️ ATENÇÃO: Você está envenenado! (" + turnosEnvenenamento + " turnos restantes)");
-                }
-                if (heroiAtordoado) {
-                    System.out.println("🌀 ATENÇÃO: Você está atordoado!");
-                }
-                System.out.println("----------------------");
-
-                // Efeitos de estado aplicados no início do turno do Herói
-                if (heroiEnvenenado && turnosEnvenenamento > 0) {
-                    int danoVeneno = 5;
-                    heroiHP -= danoVeneno;
-                    turnosEnvenenamento--;
-                    System.out.println("💀 O veneno queima nas suas veias! Causou " + danoVeneno + " de dano. Seu HP atual: " + heroiHP);
-                    if (heroiHP <= 0) {
-                        break; // Herói morreu por veneno
-                    }
-                    if (turnosEnvenenamento == 0) {
-                        heroiEnvenenado = false;
-                        System.out.println("✨ O veneno se dissipou do seu corpo.");
+            while (hp > 0 && monsterHp > 0) {
+                // [ITEM 6/8 - GoF State: o dano contínuo e a verificação do
+                // atordoamento foram extraídos para os objetos de estado.
+                if (currentState.equals("Envenenado")) {
+                    hp = Math.max(0, hp - 5);
+                    System.out.println(heroName + " sofreu 5 de dano! [HP Restante: " + hp + "/" + maxHp + "]");
+                    System.out.println(" ✨ [EFEITO] " + heroName + " está envenenado e sofreu 5 de dano de Veneno!");
+                    if (hp == 0) {
+                        break;
                     }
                 }
 
-                // Turno do Herói
-                if (!heroiAtordoado) {
-                    System.out.println("Sua vez! Escolha uma ação:");
-                    System.out.println("1 - Ataque Físico");
-                    System.out.println("2 - Ataque Mágico (Custo: 10 MP)");
-                    System.out.println("3 - Curar-se (Custo: 5 MP)");
-                    System.out.print("Opção: ");
-                    int acao = scanner.nextInt();
+                if (currentState.equals("Atordoado")) {
+                    System.out.println(" ✨ [EFEITO] " + heroName + " está atordoado e perdeu a rodada!");
+                    System.out.println(" ⚙️  Você está atordoado e não pode tomar decisões técnicas este turno!");
+                    currentState = "Saudável";
+                } else {
+                    // [ITEM 1/8 - Information Expert: estes dados exibidos são
+                    // apresentados por Hero.printStatus() na versão refatorada.]
+                    System.out.println("\n====================================================================");
+                    System.out.println("  STATUS DO HERÓI");
+                    System.out.println("  Nome: " + heroName + " (Nível " + level + " " + heroClass + ")");
+                    System.out.println("  Vida: " + hp + " / " + maxHp + " | Mana: " + mana + " / " + maxMana);
+                    System.out.println("  Estado Físico: " + currentState);
+                    System.out.println("  Arma Atual: " + weaponName + " (Dano: +" + weaponDamage + ")");
+                    System.out.println("  Estratégia Escolhida: " + currentStrategy);
+                    System.out.println("====================================================================");
 
-                    // Switch estrutural gigante de ações de combate (Falta do padrão Strategy)
-                    switch (acao) {
+                    // [ITEM 7/8 - GoF Strategy: o switch foi extraído para
+                    // strategy/CombatStrategy.java, MeleeAttack.java,
+                    // SpellcastingAttack.java e DefensiveStance.java. Main
+                    // continua lendo a opção e escolhe qual estratégia executar.
+                    System.out.println("\n--- SEU TURNO ---");
+                    System.out.println("Escolha sua estratégia de programação/combate:");
+                    System.out.println("1. Ataque Físico com sua arma (" + weaponName + ")");
+                    System.out.println("2. Conjurar Magia Arcana (Custo: 10 MP)");
+                    System.out.println("3. Adotar Postura Defensiva (+15 HP)");
+                    System.out.print("Estratégia: ");
+                    int strategyOption = scanner.nextInt();
+
+                    switch (strategyOption) {
                         case 1:
-                            int danoCalculado = heroiDanoBase + armaDanoBonus + random.nextInt(6);
-                            monstroHP -= danoCalculado;
-                            System.out.println("⚔️ Você atacou com " + armaNome + " e causou " + danoCalculado + " de dano no " + monstroNome + "!");
+                            currentStrategy = "Ataque Físico";
+                            int meleeDamage = weaponDamage + strength / 2;
+                            System.out.println(" ⚔️  " + heroName + " ataca fisicamente com " + weaponName
+                                    + " causando " + meleeDamage + " de dano.");
+                            monsterHp = Math.max(0, monsterHp - meleeDamage);
                             break;
                         case 2:
-                            if (heroiMP >= 10) {
-                                heroiMP -= 10;
-                                int danoMagico = heroiDanoBase * 2 + random.nextInt(12);
-                                monstroHP -= danoMagico;
-                                System.out.println("🔥 Você conjurou uma Bola de Fogo! Causou " + danoMagico + " de dano mágico no " + monstroNome + "!");
+                            currentStrategy = "Magia Arcana (Custo: 10 MP)";
+                            if (mana >= 10) {
+                                mana -= 10;
+                                System.out.println(" ⚔️  " + heroName + " lança um feitiço arcano em "
+                                        + monsterName + " causando 25 de dano!");
+                                monsterHp = Math.max(0, monsterHp - 25);
                             } else {
-                                System.out.println("❌ Sem mana suficiente! Você perdeu a vez de forma atrapalhada.");
+                                System.out.println(" ⚔️  " + heroName + " tentou conjurar magia, mas não possui Mana suficiente ("
+                                        + mana + "/10)! Ataque falhou.");
                             }
                             break;
                         case 3:
-                            if (heroiMP >= 5) {
-                                heroiMP -= 5;
-                                int cura = 20 + random.nextInt(11);
-                                heroiHP = Math.min(heroiMaxHP, heroiHP + cura);
-                                System.out.println("💚 Você usou Magia Divina e recuperou " + cura + " pontos de HP!");
-                            } else {
-                                System.out.println("❌ Sem mana suficiente! Você perdeu a vez de forma atrapalhada.");
-                            }
+                            currentStrategy = "Postura Defensiva (+15 HP)";
+                            hp = Math.min(maxHp, hp + 15);
+                            System.out.println(" ⚔️  " + heroName + " adota postura defensiva e recupera 15 HP!");
                             break;
                         default:
-                            System.out.println("🌀 Comando confuso! Você hesitou e perdeu seu turno.");
-                            break;
+                            currentStrategy = "Ataque Físico";
+                            System.out.println(" ⚙️  Opção inválida! Adotando postura padrão de ataque físico.");
+                            int defaultDamage = weaponDamage + strength / 2;
+                            System.out.println(" ⚔️  " + heroName + " ataca fisicamente com " + weaponName
+                                    + " causando " + defaultDamage + " de dano.");
+                            monsterHp = Math.max(0, monsterHp - defaultDamage);
+                    }
+                }
+
+                // [ITEM 1/8 - Information Expert: vida, dano e ação dos inimigos
+                // foram movidos para model/Monster.java e suas subclasses. Main
+                // permanece responsável pela ordem dos turnos.]
+                if (monsterHp > 0) {
+                    System.out.println("\n--- TURNO DO MONSTRO (" + monsterName + ") ---");
+                    if (currentFloor == 1) {
+                        System.out.println(" ⚔️  " + monsterName + " avança sorrateiramente e morde seu calcanhar!");
+                        hp = Math.max(0, hp - monsterAttackPower);
+                        System.out.println(" ⚔️  " + heroName + " sofreu " + monsterAttackPower
+                                + " de dano! [HP Restante: " + hp + "/" + maxHp + "]");
+                        if (random.nextInt(100) < 30 && !currentState.equals("Atordoado")) {
+                            currentState = "Envenenado";
+                            System.out.println(" ✨ [EFEITO] " + monsterName + " aplicou toxina venenosa a você!");
+                        }
+                    } else if (currentFloor == 2) {
+                        System.out.println(" ⚔️  " + monsterName + " ergue seu machado pesado e desfere um golpe brutal!");
+                        hp = Math.max(0, hp - monsterAttackPower);
+                        System.out.println(" ⚔️  " + heroName + " sofreu " + monsterAttackPower
+                                + " de dano! [HP Restante: " + hp + "/" + maxHp + "]");
+                        if (random.nextInt(100) < 25 && !currentState.equals("Atordoado")) {
+                            currentState = "Atordoado";
+                            System.out.println(" ✨ [EFEITO] " + monsterName
+                                    + " bateu o escudo na sua cabeça, deixando você atordoado!");
+                        }
+                    } else {
+                        int dragonAction = random.nextInt(3);
+                        if (dragonAction == 0) {
+                            System.out.println(" ⚔️  " + monsterName + " ruge e lança um Sopro de Fogo Primordial!");
+                            hp = Math.max(0, hp - (monsterAttackPower + 8));
+                            System.out.println(" ⚔️  " + heroName + " sofreu " + (monsterAttackPower + 8)
+                                    + " de dano! [HP Restante: " + hp + "/" + maxHp + "]");
+                            if (!currentState.equals("Atordoado")) {
+                                currentState = "Envenenado";
+                            }
+                        } else if (dragonAction == 1) {
+                            System.out.println(" ⚔️  " + monsterName + " bate sua cauda espinhosa contra você!");
+                            hp = Math.max(0, hp - monsterAttackPower);
+                            System.out.println(" ⚔️  " + heroName + " sofreu " + monsterAttackPower
+                                    + " de dano! [HP Restante: " + hp + "/" + maxHp + "]");
+                            currentState = "Atordoado";
+                        } else {
+                            int clawDamage = monsterAttackPower - 4;
+                            System.out.println(" ⚔️  " + monsterName + " ataca com suas garras gigantes!");
+                            hp = Math.max(0, hp - clawDamage);
+                            System.out.println(" ⚔️  " + heroName + " sofreu " + clawDamage
+                                    + " de dano! [HP Restante: " + hp + "/" + maxHp + "]");
+                        }
+                    }
+                }
+            }
+
+            if (hp <= 0) {
+                System.out.println("\n====================================================================");
+                System.out.println("  FALHA DE SISTEMA - GAME OVER");
+                System.out.println("  Seu herói sucumbiu à bola de lama e ao forte acoplamento do monstro.");
+                System.out.println("  Não desanime! Refatore sua mente, revise o código e tente de novo.");
+                System.out.println("====================================================================");
+            } else {
+                System.out.println("\n====================================================================");
+                System.out.println("  VITÓRIA!");
+                System.out.println("  Você derrotou o " + monsterName + "!");
+                System.out.println("====================================================================");
+
+                // [ITEM 8/8 - GoF Observer: o monólito não possuía observadores.
+                // Hero notifica observer/GameObserver.java e
+                // observer/AchievementSystem.java na versão refatorada.]
+                System.out.println(" ⚙️  Você ganhou 40 EXP de derrotar " + monsterName + "!");
+                experience += 40;
+                if (experience >= level * 40) {
+                    level++;
+                    experience = 0;
+                    hp = maxHp;
+                    mana = maxMana;
+                    System.out.println(" ✨ [EFEITO] LIVEL UP! Você subiu para o nível " + level
+                            + "! Seu HP e MP foram restaurados.");
+                }
+                currentState = "Saudável";
+
+                // [ITEM 5/8 - GoF Decorator: os bônus incrementais foram
+                // extraídos para decorator/Weapon.java, BasicWeapon.java,
+                // WeaponDecorator.java, FireWeaponDecorator.java e
+                // IceWeaponDecorator.java. A decisão continua no fluxo principal.
+                if (currentFloor < 3) {
+                    System.out.println("\n🎁 Você encontrou uma bigorna ancestral de refatoração!");
+                    System.out.println("Deseja aplicar um encantamento dinâmico à sua arma utilizando o padrão DECORATOR?");
+                    System.out.println("1. Encantamento de Fogo (Adiciona +6 de dano de chamas)");
+                    System.out.println("2. Encantamento Gélido (Adiciona +4 de dano de gelo)");
+                    System.out.println("3. Ignorar encantamento e manter design limpo");
+                    System.out.print("Escolha: ");
+                    int upgradeOption = scanner.nextInt();
+
+                    if (upgradeOption == 1) {
+                        weaponName += " das Chamas";
+                        weaponDamage += 6;
+                        System.out.println(" ⚙️  Você equipou: " + weaponName + " (Dano Bônus: " + weaponDamage + ")");
+                    } else if (upgradeOption == 2) {
+                        weaponName += " Gélida";
+                        weaponDamage += 4;
+                        System.out.println(" ⚙️  Você equipou: " + weaponName + " (Dano Bônus: " + weaponDamage + ")");
+                    } else {
+                        System.out.println(" ⚙️  Você decidiu manter sua arma padrão para evitar complexidade desnecessária.");
                     }
                 } else {
-                    System.out.println("🌀 Você está atordoado e não consegue se mover neste turno!");
-                    heroiAtordoado = false; // Recupera para o próximo turno
+                    System.out.println("\n====================================================================");
+                    System.out.println("  FIM DA AVENTURA - VITÓRIA REAL");
+                    System.out.println("  Parabéns, arquiteto de software renomado!");
+                    System.out.println("  Você superou os desafios arquitetônicos e salvou o reino da bola de lama.");
+                    System.out.println("====================================================================");
                 }
-
-                // Turno do Monstro (Se ainda estiver vivo)
-                if (monstroHP > 0) {
-                    // Decide ação do monstro de forma procedural
-                    int acaoMonstro = random.nextInt(10);
-
-                    if (acaoMonstro < 6) { // 60% chance de ataque comum
-                        int danoInimigo = monstroDanoBase + random.nextInt(5);
-                        heroiHP -= danoInimigo;
-                        System.out.println("💥 O " + monstroNome + " ataca você causando " + danoInimigo + " de dano!");
-                    } else if (acaoMonstro < 8) { // 20% chance de usar habilidade especial
-                        System.out.println("⚡ O " + monstroNome + " executa seu golpe especial: [" + monstroHabilidade + "]!");
-                        int danoEspecial = monstroDanoBase + 8;
-                        heroiHP -= danoEspecial;
-                        System.out.println("💥 O golpe especial causa estrondosos " + danoEspecial + " de dano em você!");
-                    } else { // 20% chance de aplicar efeito negativo (Veneno / Atordoamento)
-                        if (andarAtual == 1) { // Goblin envenena
-                            System.out.println("🤢 O " + monstroNome + " cospe uma saliva ácida em você!");
-                            heroiEnvenenado = true;
-                            turnosEnvenenamento = 3;
-                            System.out.println("Você foi ENVENENADO por 3 turnos!");
-                        } else if (andarAtual == 2) { // Orc atordoa
-                            System.out.println("🔨 O " + monstroNome + " golpeia sua cabeça com um escudo pesado!");
-                            heroiAtordoado = true;
-                            System.out.println("Você foi ATORDOADO para o próximo turno!");
-                        } else { // Dragon faz os dois!
-                            System.out.println("🔥 O " + monstroNome + " ruge e chove labaredas tóxicas!");
-                            heroiEnvenenado = true;
-                            turnosEnvenenamento = 2;
-                            heroiAtordoado = true;
-                            System.out.println("Você está ENVENENADO e ATORDOADO!");
-                        }
-                    }
-                }
-            } // Fim do Loop de Batalha
-
-            if (heroiHP <= 0) {
-                System.out.println("\n💀💀💀 O Herói " + heroiNome + " sucumbiu na masmorra no andar " + andarAtual + "... GAME OVER 💀💀💀");
-                heroiVivo = false;
-            } else {
-                System.out.println("\n🎉 Você derrotou o " + monstroNome + "! O andar " + andarAtual + " foi purificado.");
-
-                // --- DROPS RÍGIDOS NO PÓS-COMBATE (Acoplamento de Recompensas) ---
-                if (andarAtual < totalAndares) {
-                    System.out.println("Você encontrou um baú misterioso!");
-                    if (andarAtual == 1) {
-                        System.out.println("Dentro do baú há uma: [Espada de Aço de Fogo]");
-                        System.out.println("Deseja equipá-la? (1-Sim, 2-Não)");
-                        int equipChoice = scanner.nextInt();
-                        if (equipChoice == 1) {
-                            armaNome = "Espada de Aço de Fogo";
-                            armaDanoBonus = 12; // Dano fixado chumbado (decorator fail)
-                            System.out.println("Você equipou a " + armaNome + "! Seu bônus de dano agora é +" + armaDanoBonus);
-                        }
-                    } else if (andarAtual == 2) {
-                        System.out.println("Dentro do baú há um: [Cajado do Arquimago Sagrado]");
-                        System.out.println("Deseja equipá-lo? (1-Sim, 2-Não)");
-                        int equipChoice = scanner.nextInt();
-                        if (equipChoice == 1) {
-                            armaNome = "Cajado do Arquimago Sagrado";
-                            armaDanoBonus = 18;
-                            heroiMaxMP += 20; // Altera atributos diretamente de forma perigosa
-                            heroiMP = heroiMaxMP;
-                            System.out.println("Você equipou a " + armaNome + "! Seu bônus de dano é +" + armaDanoBonus + " e sua mana máxima aumentou!");
-                        }
-                    }
-                }
-
-                // Descanso e avanço
-                heroiHP = Math.min(heroiMaxHP, heroiHP + 30); // Recuperação parcial
-                heroiMP = Math.min(heroiMaxMP, heroiMP + 10);
-                System.out.println("Após descansar, você recuperou um pouco de HP e MP!");
-                andarAtual++;
+                currentFloor++;
             }
-        } // Fim do Loop de Masmorra
-
-        if (heroiVivo) {
-            System.out.println("\n=======================================================");
-            System.out.println("🏆 PARABÉNS! " + heroiNome + " conquistou a Masmorra Arquitetural!");
-            System.out.println("Você provou ser um verdadeiro mestre dos padrões!");
-            System.out.println("=======================================================");
         }
 
+        // [REFATORAÇÃO INCREMENTAL - permanece em Main.java]
+        // O encerramento do fluxo e o fechamento do Scanner continuam no Controller.
+        System.out.println(" ⚙️  Obrigado por jogar Design Partner & Dragons! Obrigado Prof. Angelo.");
         scanner.close();
     }
 }
